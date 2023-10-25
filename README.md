@@ -1,4 +1,4 @@
-# Heroswap contracts
+# NFT contracts
 
 A guildline for deploying Heroswap contracts on BSC.
 
