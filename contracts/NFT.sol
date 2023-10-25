@@ -5,20 +5,19 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract RSE is ERC721Burnable, Ownable, Pausable {
+contract MyNFT is ERC721Burnable, Ownable, Pausable {
     uint256 public constant maxSupply = 100;
     uint256 public totalSupply;
+    uint256 private nextTokenId = 1; // The next available tokenId
     mapping(uint256 => string) private _tokenURIs;
 
-    constructor() ERC721("Royal S.E", "RSE") {}
+    constructor() ERC721("MyNFT", "MNFT") {}
 
     // Mint function to create new tokens
-    function mint(
-        address to,
-        uint256 tokenId,
-        string memory tokenURI
-    ) public onlyOwner {
+    function mint(address to, string memory tokenURI) public onlyOwner {
         require(totalSupply + 1 <= maxSupply, "Max supply reached");
+        uint256 tokenId = nextTokenId;
+        nextTokenId++;
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, tokenURI);
         totalSupply = totalSupply + 1;
@@ -27,22 +26,18 @@ contract RSE is ERC721Burnable, Ownable, Pausable {
     // Batch mint function to create multiple tokens at once
     function batchMint(
         address to,
-        uint256[] memory tokenIds,
+        uint256 numTokens,
         string[] memory tokenURIs
     ) public onlyOwner {
-        require(
-            totalSupply + tokenIds.length <= maxSupply,
-            "Max supply reached"
-        );
-        require(
-            tokenIds.length == tokenURIs.length,
-            "Array lengths do not match"
-        );
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            _safeMint(to, tokenIds[i]);
-            _setTokenURI(tokenIds[i], tokenURIs[i]);
+        require(totalSupply + numTokens <= maxSupply, "Max supply reached");
+        require(numTokens == tokenURIs.length, "Array lengths do not match");
+        for (uint256 i = 0; i < numTokens; i++) {
+            uint256 tokenId = nextTokenId;
+            nextTokenId++;
+            _safeMint(to, tokenId);
+            _setTokenURI(tokenId, tokenURIs[i]);
         }
-        totalSupply = totalSupply + uint256(tokenIds.length);
+        totalSupply = totalSupply + numTokens;
     }
 
     // Batch transfer function to transfer multiple tokens at once
